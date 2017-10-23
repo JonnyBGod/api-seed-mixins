@@ -1,0 +1,37 @@
+{
+  "name": "S3File",
+  "plural": "S3Files",
+  "base": "Model",
+  "options": {},
+  "properties": {
+    "url": {
+      "type": "string",
+      "required": false
+    },
+    "key": {
+      "type": "string",
+      "required": false
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": [],
+  "mixins": {
+    "TimeStamp": {
+      "required": false
+    },
+    "Stats": [
+      {
+        "method": "stats",
+        "endpoint": "/stats",
+        "description": "Statistical information for 'S3File' registers.",
+        "type": "model",
+        "count": {
+          "on": "createdAt",
+          "by": "index"
+        }
+      }
+    ]
+  }
+}

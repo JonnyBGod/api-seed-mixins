@@ -1,0 +1,19 @@
+{
+  "name": "api-seed-mixins",
+  "version": "1.0.0",
+  "description": "Mixins used in api-seed",
+  "main": "mixins",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JonnyBGod/api-seed-mixins.git"
+  },
+  "author": "João Ribeiro <jonnybgod@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JonnyBGod/api-seed-mixins/issues"
+  },
+  "homepage": "https://github.com/JonnyBGod/api-seed-mixins#readme"
+}

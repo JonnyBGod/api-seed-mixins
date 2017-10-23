@@ -1,0 +1,64 @@
+# Created by http://gitignore.io
+
+### Node ###
+lib-cov
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+
+pids
+logs
+results
+
+npm-debug.log
+node_modules
+.tmp
+bower_components
+coverage
+
+### OSX ###
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+
+### SublimeText ###
+# SublimeText project files
+*.sublime-workspace
+
+### Linux ###
+.*
+!.gitignore
+!.dockerignore
+!.git*
+!.travis.yml
+*~
+
+
+### Compass ###
+.sass-cache
+
+### SASS ###
+### SASS Ignores - "Sassy CSS" http://sass-lang.com/
+*.sass-cache
+
+newrelic_agent.log
+*.azk
+
+dist
+yarn.lock
+
+!lambda/image_processing/node_modules
+!lambda/prerender/node_modules
