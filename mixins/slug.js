@@ -17,7 +17,7 @@ module.exports = function(Model, opt) {
     cb = opt
   }
 
-  Model.defineProperty(options.slug, {type: String})
+  Model.defineProperty(options.slug, { type: String })
 
   Model.on('attached', function() {
     Model.observe('before save', createSlug)

@@ -20,14 +20,14 @@ module.exports = function(Model, options) {
 function init(Model, options) {
   const Invite = Model.app.models.Invite
 
-  Model.defineProperty('active', {type: 'boolean', default: false})
+  Model.defineProperty('active', { type: 'boolean', default: false })
 
   Model.hasMany(Invite, {
     as: 'invites',
     foreignKey: Model.definition.name.toLowerCase() + 'Id'
   })
   Invite.belongsTo(Model)
-  Invite.belongsTo(Model, {as: 'invitedUser', foreignKey: 'invitedUserId'})
+  Invite.belongsTo(Model, { as: 'invitedUser', foreignKey: 'invitedUserId' })
 
   Model.disableRemoteMethodByName('prototype.__delete__invites')
   Model.disableRemoteMethodByName('prototype.__destroyById__invites')
@@ -157,11 +157,11 @@ function init(Model, options) {
   Model.remoteMethod('activate', {
     description: 'Activate a user registration with invite token.',
     accepts: [
-      {arg: 'uid', type: 'string', required: true},
-      {arg: 'token', type: 'string', required: true},
-      {arg: 'redirect', type: 'string'}
+      { arg: 'uid', type: 'string', required: true },
+      { arg: 'token', type: 'string', required: true },
+      { arg: 'redirect', type: 'string' }
     ],
-    http: {verb: 'get', path: '/activate'}
+    http: { verb: 'get', path: '/activate' }
   })
 
   Model.prototype.adminInvite = function(data, fn) {
@@ -193,6 +193,6 @@ function init(Model, options) {
         source: 'body'
       }
     },
-    http: {verb: 'post', path: '/adminInvite'}
+    http: { verb: 'post', path: '/adminInvite' }
   })
 }

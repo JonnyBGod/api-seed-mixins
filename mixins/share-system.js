@@ -41,8 +41,8 @@ function init(Model, options) {
     through: Model.app.models.Share
   })
 
-  Model.app.models.Share.belongsTo(Model.app.models.user, {as: 'user'})
-  Model.app.models.Share.belongsTo(Model, {as: 'post'})
+  Model.app.models.Share.belongsTo(Model.app.models.user, { as: 'user' })
+  Model.app.models.Share.belongsTo(Model, { as: 'post' })
 
   Model.app.models.user.disableRemoteMethodByName('prototype.__create__shares')
   Model.app.models.user.disableRemoteMethodByName('prototype.__delete__shares')

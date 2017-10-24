@@ -53,9 +53,9 @@ module.exports = function(Model, options) {
       isStatic: false,
       description: 'Get a S3 Signed URL for direct file uploads.',
       accessType: 'WRITE',
-      accepts: [{arg: 'key', type: 'string'}, {arg: 'options', type: 'object'}],
-      returns: {arg: 'url', type: 'string', root: true},
-      http: {verb: 'get', path: '/s3PUTSignedUrl'}
+      accepts: [{ arg: 'key', type: 'string' }, { arg: 'options', type: 'object' }],
+      returns: { arg: 'url', type: 'string', root: true },
+      http: { verb: 'get', path: '/s3PUTSignedUrl' }
     })
 
     Model.prototype.s3GETSignedUrl = function(key, cb) {
@@ -73,9 +73,9 @@ module.exports = function(Model, options) {
       isStatic: false,
       description: 'Get a S3 Signed URL for direct file access.',
       accessType: 'READ',
-      accepts: [{arg: 'key', type: 'string'}],
-      returns: {arg: 'url', type: 'string', root: true},
-      http: {verb: 'get', path: '/s3GETSignedUrl'}
+      accepts: [{ arg: 'key', type: 'string' }],
+      returns: { arg: 'url', type: 'string', root: true },
+      http: { verb: 'get', path: '/s3GETSignedUrl' }
     })
 
     var S3File = Model.app.models.S3File
@@ -161,7 +161,7 @@ module.exports = function(Model, options) {
                     Bucket: opts.Bucket || options.Bucket || app.get('s3Bucket'),
                     Delete: {
                       Objects: s3Files.map(function(s3File) {
-                        return {Key: s3File.key}
+                        return { Key: s3File.key }
                       }),
                       Quiet: true
                     }

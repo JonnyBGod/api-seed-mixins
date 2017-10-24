@@ -28,8 +28,8 @@ function init(Model, options) {
     through: Model.app.models.Follow
   })
 
-  Model.app.models.Follow.belongsTo(Model, {as: 'user', foreignKey: 'userId'})
-  Model.app.models.Follow.belongsTo(Model, {as: 'followee', foreignKey: 'followeeId'})
+  Model.app.models.Follow.belongsTo(Model, { as: 'user', foreignKey: 'userId' })
+  Model.app.models.Follow.belongsTo(Model, { as: 'followee', foreignKey: 'followeeId' })
 
   Model.disableRemoteMethodByName('prototype.__create__followers')
   Model.disableRemoteMethodByName('prototype.__delete__followers')

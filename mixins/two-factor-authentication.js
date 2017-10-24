@@ -69,7 +69,7 @@ function init(Model, options) {
   Model.app.loopback.remoteMethod(Model.prototype.verifyTwoFactorAuthentication, {
     description: 'Verify a two-factor-authentication token',
     accessType: 'WRITE',
-    accepts: [{arg: 'token', type: 'string', required: true}],
-    http: {verb: 'get', path: '/verifyTwoFactorAuthentication'}
+    accepts: [{ arg: 'token', type: 'string', required: true }],
+    http: { verb: 'get', path: '/verifyTwoFactorAuthentication' }
   })
 }

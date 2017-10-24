@@ -27,8 +27,8 @@ function init(Model, options) {
     through: Model.app.models.Reply
   })
 
-  Model.app.models.Reply.belongsTo(Model, {as: 'reply', foreignKey: 'replyerId'})
-  Model.app.models.Reply.belongsTo(Model, {as: 'replying', foreignKey: 'replyingId'})
+  Model.app.models.Reply.belongsTo(Model, { as: 'reply', foreignKey: 'replyerId' })
+  Model.app.models.Reply.belongsTo(Model, { as: 'replying', foreignKey: 'replyingId' })
 
   Model.disableRemoteMethodByName('prototype.__create__replies')
   Model.disableRemoteMethodByName('prototype.__delete__replies')

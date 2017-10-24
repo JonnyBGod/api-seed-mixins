@@ -16,8 +16,8 @@ module.exports = function(Model, options) {
 function init(Model, options) {
   const camelCasedName = Model.definition.name[0].toLowerCase() + Model.definition.name.slice(1)
 
-  Model.hasAndBelongsToMany(Model.app.models.Category, {as: 'categories'})
-  Model.app.models.Category.hasAndBelongsToMany(Model, {as: camelCasedName + 's'})
+  Model.hasAndBelongsToMany(Model.app.models.Category, { as: 'categories' })
+  Model.app.models.Category.hasAndBelongsToMany(Model, { as: camelCasedName + 's' })
 
   Model.disableRemoteMethodByName('prototype.__create__categories')
   Model.disableRemoteMethodByName('prototype.__delete__categories')
