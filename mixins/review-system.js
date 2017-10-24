@@ -3,21 +3,24 @@ var debug = require('debug')('mixins:review-system')
 
 module.exports = function(Model, options) {
   Model.on('attached', () => {
-    if (typeof Model.app.models.Review === 'undefined' || typeof Model.app.models.user === 'undefined') {
+    if (
+      typeof Model.app.models.Review === 'undefined' ||
+      typeof Model.app.models.user === 'undefined'
+    ) {
       if (typeof Model.app.models.Review === 'undefined') {
         Model.app.loopback.getModel('Review').on('attached', () => {
           if (typeof Model.app.models.user !== 'undefined') {
-             init(Model, options)
+            init(Model, options)
           }
         })
-       }
-       if (typeof Model.app.models.user === 'undefined') {
+      }
+      if (typeof Model.app.models.user === 'undefined') {
         Model.app.loopback.getModel('user').on('attached', () => {
           if (typeof Model.app.models.Review !== 'undefined') {
-             init(Model, options)
+            init(Model, options)
           }
         })
-       }
+      }
     } else {
       init(Model, options)
     }
@@ -33,7 +36,7 @@ function init(Model, options) {
   }
 
   Model.hasMany(Model.app.models.Review, {
-  	as: 'reviews'
+    as: 'reviews'
   })
-	Model.app.models.Review.belongsTo(Model)
+  Model.app.models.Review.belongsTo(Model)
 }

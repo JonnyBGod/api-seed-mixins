@@ -6,9 +6,9 @@ const QRCode = require('qrcode')
 module.exports = function(Model, options) {
   Model.on('attached', () => {
     if (typeof Model.app.models.TwoFactorAuthentication === 'undefined') {
-       Model.app.loopback.getModel('TwoFactorAuthentication').on('attached', () => {
+      Model.app.loopback.getModel('TwoFactorAuthentication').on('attached', () => {
         init(Model, options)
-       })
+      })
     } else {
       init(Model, options)
     }
@@ -31,7 +31,7 @@ function init(Model, options) {
 
         ctx.instance.qrcode = data_url
         next()
-      });
+      })
     } else {
       next()
     }
@@ -39,7 +39,7 @@ function init(Model, options) {
 
   Model.observe('before save', function(ctx, next) {
     if (ctx.isNewInstance && ctx.instance) {
-      ctx.instance.twoFactorAuthentication.create({}, (err) => next(err))
+      ctx.instance.twoFactorAuthentication.create({}, err => next(err))
     } else {
       next()
     }
@@ -69,9 +69,7 @@ function init(Model, options) {
   Model.app.loopback.remoteMethod(Model.prototype.verifyTwoFactorAuthentication, {
     description: 'Verify a two-factor-authentication token',
     accessType: 'WRITE',
-    accepts: [
-      {arg: 'token', type: 'string', required: true}
-    ],
+    accepts: [{arg: 'token', type: 'string', required: true}],
     http: {verb: 'get', path: '/verifyTwoFactorAuthentication'}
   })
 }

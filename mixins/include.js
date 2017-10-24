@@ -19,9 +19,7 @@ module.exports = function(Model, options) {
             ctx.args.filter.include.push(options)
           }
         } else {
-          var inc = [
-            ctx.args.filter.include,
-          ]
+          var inc = [ctx.args.filter.include]
 
           if (Object.prototype.toString.call(options) === '[object Array]') {
             inc.concat(options)
@@ -36,7 +34,7 @@ module.exports = function(Model, options) {
       }
     } else {
       ctx.args.filter = {
-        include: options,
+        include: options
       }
     }
 

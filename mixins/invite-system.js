@@ -8,9 +8,9 @@ module.exports = function(Model, options) {
     }
 
     if (typeof Model.app.models.Invite === 'undefined') {
-       Model.app.loopback.getModel('Invite').on('attached', () => {
+      Model.app.loopback.getModel('Invite').on('attached', () => {
         init(Model, options)
-       })
+      })
     } else {
       init(Model, options)
     }
@@ -38,9 +38,7 @@ function init(Model, options) {
     principalType: 'ROLE',
     principalId: '$everyone',
     permission: 'ALLOW',
-    property: [
-      '__count__invites'
-    ]
+    property: ['__count__invites']
   })
 
   Model.settings.acls.push({
@@ -61,7 +59,7 @@ function init(Model, options) {
     principalType: 'ROLE',
     principalId: '$owner',
     permission: 'DENY',
-    property: [ 'adminInvite' ]
+    property: ['adminInvite']
   })
 
   Model.settings.acls.push({
@@ -69,23 +67,26 @@ function init(Model, options) {
     principalType: 'ROLE',
     principalId: 'admin',
     permission: 'ALLOW',
-    property: [ 'adminInvite' ]
+    property: ['adminInvite']
   })
 
   Model.observe('before save', function(ctx, next) {
     if (ctx.isNewInstance && ctx.instance) {
-      Invite.findOne({
-        email: ctx.instance.email
-      }, (err, invite) => {
-        if (err) return debug(err)
+      Invite.findOne(
+        {
+          email: ctx.instance.email
+        },
+        (err, invite) => {
+          if (err) return debug(err)
 
-        if (invite) {
-          ctx.instance.active = true
-          invite.updateAttribute('used', true, () => {})
+          if (invite) {
+            ctx.instance.active = true
+            invite.updateAttribute('used', true, () => {})
+          }
+
+          next()
         }
-
-        next()
-      })
+      )
     } else {
       next()
     }
@@ -97,50 +98,52 @@ function init(Model, options) {
       if (err) return fn(err)
 
       if (user) {
-        Invite.find({
-          where: {
-            invitedUserId: uid,
-            user: true
-          }
-        }, (err, invite) => {
-          if (err) return fn(err)
+        Invite.find(
+          {
+            where: {
+              invitedUserId: uid,
+              user: true
+            }
+          },
+          (err, invite) => {
+            if (err) return fn(err)
 
-          if (invite && invite.length > 0) {
-            err = new Error('You can only use one invite.')
-            err.statusCode = 404
-            err.code = 'USER_ALREADY_ACTIVATED'
-            fn(err)
-          } else {
-            Invite.findById(token, (err, invite) => {
-              if (err) return fn(err)
+            if (invite && invite.length > 0) {
+              err = new Error('You can only use one invite.')
+              err.statusCode = 404
+              err.code = 'USER_ALREADY_ACTIVATED'
+              fn(err)
+            } else {
+              Invite.findById(token, (err, invite) => {
+                if (err) return fn(err)
 
-              if (!invite || invite.used) {
-                err = new Error('Invalid token: ' + token)
-                err.statusCode = 400
-                err.code = 'INVALID_TOKEN'
-                fn(err)
-              } else {
-                invite.used = true
-                invite.invitedUserId = user.id
-                invite.save((err) => {
-                  if (err) {
-                    fn(err)
-                  } else {
-                    user.active = true
-                    user.save((err) => {
-                      if (err) {
-                        fn(err)
-                      } else {
-                        fn()
-                      }
-                    })
-                  }
-                })
-              }
-            })
+                if (!invite || invite.used) {
+                  err = new Error('Invalid token: ' + token)
+                  err.statusCode = 400
+                  err.code = 'INVALID_TOKEN'
+                  fn(err)
+                } else {
+                  invite.used = true
+                  invite.invitedUserId = user.id
+                  invite.save(err => {
+                    if (err) {
+                      fn(err)
+                    } else {
+                      user.active = true
+                      user.save(err => {
+                        if (err) {
+                          fn(err)
+                        } else {
+                          fn()
+                        }
+                      })
+                    }
+                  })
+                }
+              })
+            }
           }
-        })
-        
+        )
       } else {
         err = new Error('User not found: ' + uid)
         err.statusCode = 404
@@ -162,15 +165,22 @@ function init(Model, options) {
   })
 
   Model.prototype.adminInvite = function(data, fn) {
-    const entries = data.text.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi);
+    const entries = data.text.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi)
 
-    async.each(entries, (entry, callback) => {
-      this.invites.create({
-        email: entry,
-        admin: true
-      }, callback);
-    }, fn);
-  };
+    async.each(
+      entries,
+      (entry, callback) => {
+        this.invites.create(
+          {
+            email: entry,
+            admin: true
+          },
+          callback
+        )
+      },
+      fn
+    )
+  }
 
   Model.remoteMethod('prototype.adminInvite', {
     description: 'Send multiple invites',
@@ -183,6 +193,6 @@ function init(Model, options) {
         source: 'body'
       }
     },
-    http: {verb: 'post', path: '/adminInvite'},
-  });
+    http: {verb: 'post', path: '/adminInvite'}
+  })
 }

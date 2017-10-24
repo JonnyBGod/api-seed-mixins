@@ -5,9 +5,9 @@ const IncludeThrough = require('loopback-include-through-mixin')
 module.exports = function(Model, options) {
   Model.on('attached', () => {
     if (typeof Model.app.models.Vote === 'undefined') {
-       Model.app.loopback.getModel('Vote').on('attached', () => {
+      Model.app.loopback.getModel('Vote').on('attached', () => {
         init(Model, options)
-       })
+      })
     } else {
       init(Model, options)
     }
@@ -31,11 +31,7 @@ function init(Model, options) {
     principalType: 'ROLE',
     principalId: '$everyone',
     permission: 'ALLOW',
-    property: [
-      '__count__votes',
-      '__get__votes',
-      '__findById__votes'
-    ]
+    property: ['__count__votes', '__get__votes', '__findById__votes']
   })
 
   Model.settings.acls.push({
@@ -43,18 +39,13 @@ function init(Model, options) {
     principalType: 'ROLE',
     principalId: '$authenticated',
     permission: 'ALLOW',
-    property: [
-      '__create__votes',
-      '__updateById__votes'
-    ]
+    property: ['__create__votes', '__updateById__votes']
   })
 
   IncludeThrough(Model, {
-    relations: [
-      'votes'
-    ],
+    relations: ['votes'],
     fields: {
       votes: 'type'
-    },
+    }
   })
 }

@@ -8,16 +8,18 @@ module.exports = function(Model, options) {
 
   Model.on('attached', function() {
     app = Model.app
-    s3 = new AWS.S3(options.AWS || {
-      accessKeyId: app.get('awsAccessKeyId'),
-      secretAccessKey: app.get('awsSecretAccessKey'),
-      region: app.get('awsRegion')
-    })
+    s3 = new AWS.S3(
+      options.AWS || {
+        accessKeyId: app.get('awsAccessKeyId'),
+        secretAccessKey: app.get('awsSecretAccessKey'),
+        region: app.get('awsRegion')
+      }
+    )
 
     if (typeof Model.app.models.S3File === 'undefined') {
-       Model.app.loopback.getModel('S3File').on('attached', () => {
+      Model.app.loopback.getModel('S3File').on('attached', () => {
         init()
-       })
+      })
     } else {
       init()
     }
@@ -31,12 +33,14 @@ module.exports = function(Model, options) {
         Bucket: opts.Bucket || options.Bucket || app.get('s3Bucket'),
         Key: key,
         ContentType: opts.fileType,
-        CacheControl: opts.CacheControl ||
+        CacheControl:
+          opts.CacheControl ||
           options.CacheControl ||
           app.get('s3CacheControl') ||
           'max-age=86400, public',
         ACL: opts.ACL || options.ACL || app.get('s3ACL') || 'public-read',
-        StorageClass: opts.StorageClass ||
+        StorageClass:
+          opts.StorageClass ||
           options.StorageClass ||
           app.get('s3StorageClass') ||
           'REDUCED_REDUNDANCY'
@@ -49,30 +53,29 @@ module.exports = function(Model, options) {
       isStatic: false,
       description: 'Get a S3 Signed URL for direct file uploads.',
       accessType: 'WRITE',
-      accepts: [
-        { arg: 'key', type: 'string' },
-        { arg: 'options', type: 'object' }
-      ],
-      returns: { arg: 'url', type: 'string', root: true },
-      http: { verb: 'get', path: '/s3PUTSignedUrl' }
+      accepts: [{arg: 'key', type: 'string'}, {arg: 'options', type: 'object'}],
+      returns: {arg: 'url', type: 'string', root: true},
+      http: {verb: 'get', path: '/s3PUTSignedUrl'}
     })
 
     Model.prototype.s3GETSignedUrl = function(key, cb) {
-      s3.getSignedUrl('getObject', {
-        Bucket: opts.Bucket || options.Bucket || app.get('s3Bucket'),
-        Key: key
-      }, cb)
+      s3.getSignedUrl(
+        'getObject',
+        {
+          Bucket: opts.Bucket || options.Bucket || app.get('s3Bucket'),
+          Key: key
+        },
+        cb
+      )
     }
 
     Model.remoteMethod('s3GETSignedUrl', {
       isStatic: false,
       description: 'Get a S3 Signed URL for direct file access.',
       accessType: 'READ',
-      accepts: [
-        { arg: 'key', type: 'string' }
-      ],
-      returns: { arg: 'url', type: 'string', root: true },
-      http: { verb: 'get', path: '/s3GETSignedUrl' }
+      accepts: [{arg: 'key', type: 'string'}],
+      returns: {arg: 'url', type: 'string', root: true},
+      http: {verb: 'get', path: '/s3GETSignedUrl'}
     })
 
     var S3File = Model.app.models.S3File
@@ -84,7 +87,7 @@ module.exports = function(Model, options) {
 
           var params = {
             Bucket: opts.Bucket || options.Bucket || app.get('s3Bucket'),
-            Key: s3File.key,
+            Key: s3File.key
           }
           s3.deleteObject(params, next)
         })
@@ -125,7 +128,7 @@ module.exports = function(Model, options) {
       }
     }
 
-    Model.observe('before delete', function (ctx, next) {
+    Model.observe('before delete', function(ctx, next) {
       var name = idName(Model)
       var hasInstanceId = ctx.instance && ctx.instance[name]
       var hasWhereId = ctx.where && ctx.where[name]
@@ -140,36 +143,44 @@ module.exports = function(Model, options) {
       where[idName(Model)] = id
 
       Model.findOne({
-        where: where,
-      }).then(function (instance) {
-        async.each(Object.keys(options.relations), function(relationName, callback) {
-          var relation = options.relations[relationName]
-
-          if (relation.type === 'embedsOne' || relation.type === 'hasOne') {
-            instance[relationName].destroy(callback)
-          } else {
-            instance[relationName](function(err, s3Files) {
-              if (err) return next(err)
-
-              var params = {
-                Bucket: opts.Bucket || options.Bucket || app.get('s3Bucket'),
-                Delete: {
-                  Objects: s3Files.map(function(s3File) { return {Key: s3File.key} }),
-                  Quiet: true
-                },
-              }
-              s3.deleteObjects(params, function(err) {
-                if (err) console.log(err, err.stack) 
-              })
-
-              instance[relationName].destroyAll(callback)
-            })
-          }
-        }, next)
-      }).catch(function (err) {
-        debug('Error fetching instance for delete', err)
-        throw err
+        where: where
       })
+        .then(function(instance) {
+          async.each(
+            Object.keys(options.relations),
+            function(relationName, callback) {
+              var relation = options.relations[relationName]
+
+              if (relation.type === 'embedsOne' || relation.type === 'hasOne') {
+                instance[relationName].destroy(callback)
+              } else {
+                instance[relationName](function(err, s3Files) {
+                  if (err) return next(err)
+
+                  var params = {
+                    Bucket: opts.Bucket || options.Bucket || app.get('s3Bucket'),
+                    Delete: {
+                      Objects: s3Files.map(function(s3File) {
+                        return {Key: s3File.key}
+                      }),
+                      Quiet: true
+                    }
+                  }
+                  s3.deleteObjects(params, function(err) {
+                    if (err) console.log(err, err.stack)
+                  })
+
+                  instance[relationName].destroyAll(callback)
+                })
+              }
+            },
+            next
+          )
+        })
+        .catch(function(err) {
+          debug('Error fetching instance for delete', err)
+          throw err
+        })
     })
   }
 }

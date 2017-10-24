@@ -52,7 +52,7 @@
   "methods": [],
   "mixins": {
     "TimeStamp": {
-      "required" : false
+      "required": false
     },
     "Counts": true,
     "Stats": [

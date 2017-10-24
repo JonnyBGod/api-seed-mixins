@@ -4,7 +4,12 @@
   "description": "Mixins used in api-seed",
   "main": "mixins",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint --ignore-path .gitignore .",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,json}": ["prettier --write", "git add"]
   },
   "repository": {
     "type": "git",
@@ -15,5 +20,14 @@
   "bugs": {
     "url": "https://github.com/JonnyBGod/api-seed-mixins/issues"
   },
-  "homepage": "https://github.com/JonnyBGod/api-seed-mixins#readme"
+  "homepage": "https://github.com/JonnyBGod/api-seed-mixins#readme",
+  "devDependencies": {
+    "eslint": "^4.9.0",
+    "eslint-config-prettier": "^2.6.0",
+    "eslint-plugin-jasmine": "^2.9.1",
+    "eslint-plugin-prettier": "^2.3.1",
+    "husky": "^0.14.3",
+    "lint-staged": "^4.3.0",
+    "prettier": "1.7.4"
+  }
 }

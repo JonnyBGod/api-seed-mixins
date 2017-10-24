@@ -3,21 +3,24 @@ var debug = require('debug')('mixins:report-system')
 
 module.exports = function(Model, options) {
   Model.on('attached', () => {
-    if (typeof Model.app.models.Report === 'undefined' || typeof Model.app.models.user === 'undefined') {
+    if (
+      typeof Model.app.models.Report === 'undefined' ||
+      typeof Model.app.models.user === 'undefined'
+    ) {
       if (typeof Model.app.models.Report === 'undefined') {
         Model.app.loopback.getModel('Report').on('attached', () => {
           if (typeof Model.app.models.user !== 'undefined') {
-             init(Model, options)
+            init(Model, options)
           }
         })
-       }
-       if (typeof Model.app.models.user === 'undefined') {
+      }
+      if (typeof Model.app.models.user === 'undefined') {
         Model.app.loopback.getModel('user').on('attached', () => {
           if (typeof Model.app.models.Report !== 'undefined') {
-             init(Model, options)
+            init(Model, options)
           }
         })
-       }
+      }
     } else {
       init(Model, options)
     }
@@ -33,7 +36,7 @@ function init(Model, options) {
   }
 
   Model.hasMany(Model.app.models.Report, {
-  	as: 'reports'
+    as: 'reports'
   })
-	Model.app.models.Report.belongsTo(Model)
+  Model.app.models.Report.belongsTo(Model)
 }
