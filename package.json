@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
-    "ci": "jest --runInBand --coverage && coveralls < coverage/lcov.info && npm run lint",
+    "ci": "jest --runInBand --coverage && npm run lint",
     "lint": "eslint --ignore-path .gitignore .",
     "precommit": "lint-staged"
   },
