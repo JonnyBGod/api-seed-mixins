@@ -1,6 +1,6 @@
 {
   "name": "api-seed-mixins",
-  "version": "1.0.0",
+  "version": "0.0.0-development",
   "description": "Mixins used in api-seed",
   "main": "mixins",
   "scripts": {
@@ -8,7 +8,9 @@
     "test:watch": "jest --watch",
     "ci": "jest --runInBand --coverage && npm run lint",
     "lint": "eslint --ignore-path .gitignore .",
-    "precommit": "lint-staged"
+    "commit": "git-cz",
+    "precommit": "lint-staged",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "jest": {
     "testEnvironment": "node",
@@ -19,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JonnyBGod/api-seed-mixins.git"
+    "url": "https://github.com/JonnyBGod/api-seed-mixins.git"
   },
   "author": "João Ribeiro <jonnybgod@gmail.com>",
   "license": "MIT",
@@ -28,7 +30,9 @@
   },
   "homepage": "https://github.com/JonnyBGod/api-seed-mixins#readme",
   "devDependencies": {
+    "commitizen": "^2.9.6",
     "coveralls": "^3.0.0",
+    "cz-conventional-changelog": "^2.0.0",
     "eslint": "^4.9.0",
     "eslint-config-prettier": "^2.6.0",
     "eslint-plugin-jest": "^21.2.0",
@@ -37,6 +41,12 @@
     "jest": "^21.2.1",
     "lint-staged": "^4.3.0",
     "prettier": "1.7.4",
-    "supertest": "^3.0.0"
+    "supertest": "^3.0.0",
+    "semantic-release": "^8.2.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
