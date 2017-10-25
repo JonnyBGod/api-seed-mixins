@@ -44,6 +44,10 @@ Icon
 !.dockerignore
 !.git*
 !.travis.yml
+!.eslintrc
+!.nvmrc
+!.prettierrc
+!.snyk
 *~
 
 
