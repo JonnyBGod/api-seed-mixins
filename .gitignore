@@ -38,19 +38,6 @@ Icon
 # SublimeText project files
 *.sublime-workspace
 
-### Linux ###
-.*
-!.gitignore
-!.dockerignore
-!.git*
-!.travis.yml
-!.eslintrc
-!.nvmrc
-!.prettierrc
-!.snyk
-*~
-
-
 ### Compass ###
 .sass-cache
 
