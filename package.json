@@ -4,9 +4,15 @@
   "description": "Mixins used in api-seed",
   "main": "mixins",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "ci": "jest --runInBand --coverage && coveralls < coverage/lcov.info && npm run lint",
     "lint": "eslint --ignore-path .gitignore .",
     "precommit": "lint-staged"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["<rootDir>/spec/**/?(*.)(spec|test).js?(x)"]
   },
   "lint-staged": {
     "*.{js,json}": ["prettier --write", "git add"]
@@ -22,12 +28,15 @@
   },
   "homepage": "https://github.com/JonnyBGod/api-seed-mixins#readme",
   "devDependencies": {
+    "coveralls": "^3.0.0",
     "eslint": "^4.9.0",
     "eslint-config-prettier": "^2.6.0",
     "eslint-plugin-jasmine": "^2.9.1",
     "eslint-plugin-prettier": "^2.3.1",
     "husky": "^0.14.3",
+    "jest": "^21.2.1",
     "lint-staged": "^4.3.0",
-    "prettier": "1.7.4"
+    "prettier": "1.7.4",
+    "supertest": "^3.0.0"
   }
 }
