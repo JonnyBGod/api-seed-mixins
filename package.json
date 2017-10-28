@@ -48,5 +48,12 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "dependencies": {
+    "aws-sdk": "^2.141.0",
+    "loopback-include-through-mixin": "^1.0.5",
+    "qrcode": "^0.9.0",
+    "slugify": "^1.2.1",
+    "speakeasy": "^2.0.0"
   }
 }
