@@ -42,6 +42,7 @@
       "required": false
     },
     "Counts": true,
+    "ReportSystem": true,
     "Stats": [
       {
         "method": "stats",
