@@ -23,23 +23,27 @@ function init(Model, options) {
   })
   TwoFactorAuthentication.belongsTo(Model)
 
-  TwoFactorAuthentication.observe('before save', function(ctx, next) {
-    if (ctx.isNewInstance && ctx.instance) {
-      ctx.instance.secret = speakeasy.generateSecret()
-      QRCode.toDataURL(ctx.instance.secret.otpauth_url, function(err, data_url) {
-        if (err) return next(err)
-
-        ctx.instance.qrcode = data_url
-        next()
-      })
+  Model.observe('after save', (ctx, next) => {
+    if (ctx.Model.sharedClass.name === 'user' && ctx.isNewInstance && ctx.instance) {
+      ctx.instance.twoFactorAuthentication.create({}, err => next(err))
     } else {
       next()
     }
   })
 
-  Model.observe('before save', function(ctx, next) {
-    if (ctx.isNewInstance && ctx.instance) {
-      ctx.instance.twoFactorAuthentication.create({}, err => next(err))
+  TwoFactorAuthentication.observe('before save', (ctx, next) => {
+    if (
+      ctx.Model.sharedClass.name === 'TwoFactorAuthentication' &&
+      ctx.isNewInstance &&
+      ctx.instance
+    ) {
+      ctx.instance.secret = speakeasy.generateSecret()
+      QRCode.toDataURL(ctx.instance.secret.otpauth_url, (err, data_url) => {
+        if (err) return next(err)
+
+        ctx.instance.qrcode = data_url
+        next()
+      })
     } else {
       next()
     }

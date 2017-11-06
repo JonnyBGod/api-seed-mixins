@@ -81,7 +81,7 @@ module.exports = function(Model, options) {
     var S3File = Model.app.models.S3File
 
     S3File.observe('before delete', function(ctx, next) {
-      if (ctx.where.id) {
+      if (ctx.where && ctx.where.id) {
         S3File.findById(ctx.where.id, function(err, s3File) {
           if (err) return next(err)
 
