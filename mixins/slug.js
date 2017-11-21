@@ -147,7 +147,7 @@ module.exports = function(Model, opt) {
         },
         function(err, data) {
           if (err) return cb(err)
-          if (!data) return cb(auxdata)
+          if (!data) return cb(null, auxdata)
           for (var i in data) {
             if (!auxdata[i]) {
               if (data.hasOwnProperty(i)) auxdata[i] = data[i]
@@ -167,7 +167,7 @@ module.exports = function(Model, opt) {
           },
           function(err, data) {
             if (err) return cb(err)
-            if (!data) return cb(auxdata)
+            if (!data) return cb(null, auxdata)
             for (var i in data) {
               if (!auxdata[i]) {
                 if (data.hasOwnProperty(i)) auxdata[i] = data[i]
