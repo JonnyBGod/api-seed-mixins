@@ -1,22 +1,35 @@
 'use strict'
 var debug = require('debug')('mixins:share-system')
 
+const defaultOptions = {
+  shareModel: {
+    model: 'Share',
+    as: 'shared'
+  },
+  userModel: {
+    model: 'user',
+    as: 'shares'
+  }
+}
+
 module.exports = function(Model, options) {
+  options = Object.assign({}, defaultOptions, options)
+
   Model.on('attached', () => {
     if (
-      typeof Model.app.models.Share === 'undefined' ||
-      typeof Model.app.models.user === 'undefined'
+      typeof Model.app.models[options.shareModel.model] === 'undefined' ||
+      typeof Model.app.models[options.userModel.model] === 'undefined'
     ) {
-      if (typeof Model.app.models.Share === 'undefined') {
-        Model.app.loopback.getModel('Share').on('attached', () => {
-          if (typeof Model.app.models.user !== 'undefined') {
+      if (typeof Model.app.models[options.shareModel.model] === 'undefined') {
+        Model.app.loopback.getModel(options.shareModel.model).on('attached', () => {
+          if (typeof Model.app.models[options.userModel.model] !== 'undefined') {
             init(Model, options)
           }
         })
       }
-      if (typeof Model.app.models.user === 'undefined') {
-        Model.app.loopback.getModel('user').on('attached', () => {
-          if (typeof Model.app.models.Share !== 'undefined') {
+      if (typeof Model.app.models[options.userModel.model] === 'undefined') {
+        Model.app.loopback.getModel(options.userModel.model).on('attached', () => {
+          if (typeof Model.app.models[options.shareModel.model] !== 'undefined') {
             init(Model, options)
           }
         })
@@ -28,29 +41,31 @@ module.exports = function(Model, options) {
 }
 
 function init(Model, options) {
-  Model.app.models.user.hasMany(Model, {
-    as: 'shares',
+  Model.app.models[options.userModel.model].hasMany(Model, {
+    as: options.userModel.as,
     foreignKey: 'postId',
     keyThrough: 'userId',
-    through: Model.app.models.Share
+    through: Model.app.models[options.shareModel.model]
   })
-  Model.hasMany(Model.app.models.user, {
-    as: 'shared',
+  Model.hasMany(Model.app.models[options.userModel.model], {
+    as: options.shareModel.as,
     foreignKey: 'userId',
     keyThrough: 'postId',
-    through: Model.app.models.Share
+    through: Model.app.models[options.shareModel.model]
   })
 
-  Model.app.models.Share.belongsTo(Model.app.models.user, { as: 'user' })
-  Model.app.models.Share.belongsTo(Model, { as: 'post' })
+  Model.app.models[options.shareModel.model].belongsTo(Model.app.models[options.userModel.model], { as: 'user' })
+  Model.app.models[options.shareModel.model].belongsTo(Model, { as: 'post' })
 
-  Model.app.models.user.disableRemoteMethodByName('prototype.__create__shares')
-  Model.app.models.user.disableRemoteMethodByName('prototype.__delete__shares')
-  Model.app.models.user.disableRemoteMethodByName('prototype.__destroyById__shares')
-  Model.app.models.user.disableRemoteMethodByName('prototype.__updateById__shares')
+  Model.app.models[options.userModel.model].disableRemoteMethodByName('prototype.__create__' + options.userModel.as)
+  Model.app.models[options.userModel.model].disableRemoteMethodByName('prototype.__delete__' + options.userModel.as)
+  Model.app.models[options.userModel.model].disableRemoteMethodByName(
+    'prototype.__destroyById__' + options.userModel.as
+  )
+  Model.app.models[options.userModel.model].disableRemoteMethodByName('prototype.__updateById__' + options.userModel.as)
 
-  Model.disableRemoteMethodByName('prototype.__create__shared')
-  Model.disableRemoteMethodByName('prototype.__delete__shared')
-  Model.disableRemoteMethodByName('prototype.__destroyById__shared')
-  Model.disableRemoteMethodByName('prototype.__updateById__shared')
+  Model.disableRemoteMethodByName('prototype.__create__' + options.shareModel.as)
+  Model.disableRemoteMethodByName('prototype.__delete__' + options.shareModel.as)
+  Model.disableRemoteMethodByName('prototype.__destroyById__' + options.shareModel.as)
+  Model.disableRemoteMethodByName('prototype.__updateById__' + options.shareModel.as)
 }

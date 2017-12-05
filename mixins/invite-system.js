@@ -1,14 +1,20 @@
 'use strict'
 const debug = require('debug')('mixins:invite-system')
 
+const defaultOptions = {
+  model: 'Invite'
+}
+
 module.exports = function(Model, options) {
+  options = Object.assign({}, defaultOptions, options)
+
   Model.on('attached', () => {
     if (Model.settings.base !== 'User' && Model.base.settings.base !== 'User') {
       throw new Error('Invite system can only be applied to User extended models!')
     }
 
-    if (typeof Model.app.models.Invite === 'undefined') {
-      Model.app.loopback.getModel('Invite').on('attached', () => {
+    if (typeof Model.app.models[options.model] === 'undefined') {
+      Model.app.loopback.getModel(options.model).on('attached', () => {
         init(Model, options)
       })
     } else {
@@ -18,7 +24,7 @@ module.exports = function(Model, options) {
 }
 
 function init(Model, options) {
-  const Invite = Model.app.models.Invite
+  const Invite = Model.app.models[options.model]
 
   Model.defineProperty('active', { type: 'boolean', default: false })
 
@@ -46,12 +52,7 @@ function init(Model, options) {
     principalType: 'ROLE',
     principalId: '$authenticated',
     permission: 'ALLOW',
-    property: [
-      '__get__invites',
-      '__findById__invites',
-      '__create__invites',
-      '__updateById__invites'
-    ]
+    property: ['__get__invites', '__findById__invites', '__create__invites', '__updateById__invites']
   })
 
   Model.settings.acls.push({

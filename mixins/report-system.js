@@ -1,22 +1,37 @@
 'use strict'
 var debug = require('debug')('mixins:report-system')
 
+const defaultOptions = {
+  reportModel: {
+    model: 'Report',
+    as: 'reports',
+    relation: 'hasMany'
+  },
+  userModel: {
+    model: 'user',
+    as: 'reports',
+    relation: 'hasMany'
+  }
+}
+
 module.exports = function(Model, options) {
+  options = Object.assign({}, defaultOptions, options)
+
   Model.on('attached', () => {
     if (
-      typeof Model.app.models.Report === 'undefined' ||
-      typeof Model.app.models.user === 'undefined'
+      typeof Model.app.models[options.reportModel.model] === 'undefined' ||
+      typeof Model.app.models[options.userModel.model] === 'undefined'
     ) {
-      if (typeof Model.app.models.Report === 'undefined') {
-        Model.app.loopback.getModel('Report').on('attached', () => {
-          if (typeof Model.app.models.user !== 'undefined') {
+      if (typeof Model.app.models[options.reportModel.model] === 'undefined') {
+        Model.app.loopback.getModel(options.reportModel.model).on('attached', () => {
+          if (typeof Model.app.models[options.userModel.model] !== 'undefined') {
             init(Model, options)
           }
         })
       }
-      if (typeof Model.app.models.user === 'undefined') {
-        Model.app.loopback.getModel('user').on('attached', () => {
-          if (typeof Model.app.models.Report !== 'undefined') {
+      if (typeof Model.app.models[options.userModel.model] === 'undefined') {
+        Model.app.loopback.getModel(options.userModel.model).on('attached', () => {
+          if (typeof Model.app.models[options.reportModel.model] !== 'undefined') {
             init(Model, options)
           }
         })
@@ -28,15 +43,18 @@ module.exports = function(Model, options) {
 }
 
 function init(Model, options) {
-  if (typeof Model.app.models.user.scopes.reports === 'undefined') {
-    Model.app.models.user.hasMany(Model.app.models.Report, {
-      as: 'reports',
-      foreignKey: 'userId'
-    })
+  if (typeof Model.app.models[options.userModel.model].scopes[options.reportModel.as] === 'undefined') {
+    Model.app.models[options.userModel.model][options.reportModel.relation](
+      Model.app.models[options.reportModel.model],
+      {
+        as: options.reportModel.as
+      }
+    )
+    Model.app.models[options.reportModel.model].belongsTo(Model.app.models[options.userModel.model])
   }
 
-  Model.hasMany(Model.app.models.Report, {
-    as: 'reports'
+  Model[options.userModel.relation](Model.app.models[options.reportModel.model], {
+    as: options.userModel.as
   })
-  Model.app.models.Report.belongsTo(Model)
+  Model.app.models[options.reportModel.model].belongsTo(Model)
 }

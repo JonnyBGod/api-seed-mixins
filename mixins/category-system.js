@@ -1,10 +1,16 @@
 'use strict'
 var debug = require('debug')('mixins:category-system')
 
+const defaultOptions = {
+  model: 'Category'
+}
+
 module.exports = function(Model, options) {
+  options = Object.assign({}, defaultOptions, options)
+
   Model.on('attached', () => {
-    if (typeof Model.app.models.Category === 'undefined') {
-      Model.app.loopback.getModel('Category').on('attached', () => {
+    if (typeof Model.app.models[options.model] === 'undefined') {
+      Model.app.loopback.getModel(options.model).on('attached', () => {
         init(Model, options)
       })
     } else {
@@ -24,15 +30,11 @@ function init(Model, options) {
   Model.disableRemoteMethodByName('prototype.__destroyById__categories')
   Model.disableRemoteMethodByName('prototype.__updateById__categories')
 
-  Model.app.models.Category.disableRemoteMethodByName(
-    'prototype.__destroyById__' + camelCasedName + 's'
-  )
+  Model.app.models.Category.disableRemoteMethodByName('prototype.__destroyById__' + camelCasedName + 's')
   Model.app.models.Category.disableRemoteMethodByName('prototype.__link__' + camelCasedName + 's')
   Model.app.models.Category.disableRemoteMethodByName('prototype.__unlink__' + camelCasedName + 's')
   Model.app.models.Category.disableRemoteMethodByName('prototype.__exists__' + camelCasedName + 's')
   Model.app.models.Category.disableRemoteMethodByName('prototype.__create__' + camelCasedName + 's')
   Model.app.models.Category.disableRemoteMethodByName('prototype.__delete__' + camelCasedName + 's')
-  Model.app.models.Category.disableRemoteMethodByName(
-    'prototype.__updateById__' + camelCasedName + 's'
-  )
+  Model.app.models.Category.disableRemoteMethodByName('prototype.__updateById__' + camelCasedName + 's')
 }

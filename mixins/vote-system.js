@@ -2,10 +2,23 @@
 const debug = require('debug')('mixins:vote-system')
 const IncludeThrough = require('loopback-include-through-mixin')
 
+const defaultOptions = {
+  voteModel: {
+    model: 'Vote',
+    as: 'votes'
+  },
+  userModel: {
+    model: 'user',
+    as: 'reports'
+  }
+}
+
 module.exports = function(Model, options) {
+  options = Object.assign({}, defaultOptions, options)
+
   Model.on('attached', () => {
-    if (typeof Model.app.models.Vote === 'undefined') {
-      Model.app.loopback.getModel('Vote').on('attached', () => {
+    if (typeof Model.app.models[options.voteModel.model] === 'undefined') {
+      Model.app.loopback.getModel(options.voteModel.model).on('attached', () => {
         init(Model, options)
       })
     } else {
@@ -15,23 +28,34 @@ module.exports = function(Model, options) {
 }
 
 function init(Model, options) {
-  Model.hasMany(Model.app.models.Vote, {
-    as: 'votes',
+  if (typeof Model.app.models[options.userModel.model].scopes[options.voteModel.as] === 'undefined') {
+    Model.app.models[options.userModel.model].hasMany(Model.app.models[options.voteModel.model], {
+      as: options.voteModel.as
+    })
+    Model.app.models[options.voteModel.model].belongsTo(Model.app.models[options.userModel.model])
+  }
+
+  Model.hasMany(Model.app.models[options.voteModel.model], {
+    as: options.voteModel.as,
     foreignKey: Model.definition.name.toLowerCase() + 'Id'
   })
-  Model.app.models.Vote.belongsTo(Model)
+  Model.app.models[options.voteModel.model].belongsTo(Model)
 
-  Model.disableRemoteMethodByName('prototype.__create__votes')
-  Model.disableRemoteMethodByName('prototype.__delete__votes')
-  Model.disableRemoteMethodByName('prototype.__destroyById__votes')
-  Model.disableRemoteMethodByName('prototype.__updateById__votes')
+  Model.disableRemoteMethodByName('prototype.__create__' + options.voteModel.as)
+  Model.disableRemoteMethodByName('prototype.__delete__' + options.voteModel.as)
+  Model.disableRemoteMethodByName('prototype.__destroyById__' + options.voteModel.as)
+  Model.disableRemoteMethodByName('prototype.__updateById__' + options.voteModel.as)
 
   Model.settings.acls.push({
     accessType: '*',
     principalType: 'ROLE',
     principalId: '$everyone',
     permission: 'ALLOW',
-    property: ['__count__votes', '__get__votes', '__findById__votes']
+    property: [
+      '__count__' + options.voteModel.as,
+      '__get__' + options.voteModel.as,
+      '__findById__' + options.voteModel.as
+    ]
   })
 
   Model.settings.acls.push({
@@ -39,13 +63,13 @@ function init(Model, options) {
     principalType: 'ROLE',
     principalId: '$authenticated',
     permission: 'ALLOW',
-    property: ['__create__votes', '__updateById__votes']
+    property: ['__create__' + options.voteModel.as, '__updateById__' + options.voteModel.as]
   })
 
   IncludeThrough(Model, {
-    relations: ['votes'],
+    relations: [options.voteModel.as],
     fields: {
-      votes: 'type'
+      [options.voteModel.as]: 'type'
     }
   })
 }

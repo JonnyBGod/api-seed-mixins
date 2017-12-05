@@ -1,10 +1,18 @@
 'use strict'
 var debug = require('debug')('mixins:reply-system')
 
+const defaultOptions = {
+  model: 'Reply',
+  as: 'replies',
+  asTo: 'replying'
+}
+
 module.exports = function(Model, options) {
+  options = Object.assign({}, defaultOptions, options)
+
   Model.on('attached', () => {
-    if (typeof Model.app.models.Reply === 'undefined') {
-      Model.app.loopback.getModel('Reply').on('attached', () => {
+    if (typeof Model.app.models[options.model] === 'undefined') {
+      Model.app.loopback.getModel(options.model).on('attached', () => {
         init(Model, options)
       })
     } else {
@@ -15,28 +23,28 @@ module.exports = function(Model, options) {
 
 function init(Model, options) {
   Model.hasMany(Model, {
-    as: 'replies',
+    as: options.as,
     foreignKey: 'replyingId',
     keyThrough: 'replyerId',
-    through: Model.app.models.Reply
+    through: Model.app.models[options.model]
   })
   Model.hasOne(Model, {
-    as: 'replying',
+    as: options.asTo,
     foreignKey: 'replyerId',
     keyThrough: 'replyingId',
-    through: Model.app.models.Reply
+    through: Model.app.models[options.model]
   })
 
-  Model.app.models.Reply.belongsTo(Model, { as: 'reply', foreignKey: 'replyerId' })
-  Model.app.models.Reply.belongsTo(Model, { as: 'replying', foreignKey: 'replyingId' })
+  Model.app.models[options.model].belongsTo(Model, { as: 'reply', foreignKey: 'replyerId' })
+  Model.app.models[options.model].belongsTo(Model, { as: 'replying', foreignKey: 'replyingId' })
 
-  Model.disableRemoteMethodByName('prototype.__create__replies')
-  Model.disableRemoteMethodByName('prototype.__delete__replies')
-  Model.disableRemoteMethodByName('prototype.__destroyById__replies')
-  Model.disableRemoteMethodByName('prototype.__updateById__replies')
+  Model.disableRemoteMethodByName('prototype.__create__' + options.as)
+  Model.disableRemoteMethodByName('prototype.__delete__' + options.as)
+  Model.disableRemoteMethodByName('prototype.__destroyById__' + options.as)
+  Model.disableRemoteMethodByName('prototype.__updateById__' + options.as)
 
-  Model.disableRemoteMethodByName('prototype.__create__replying')
-  Model.disableRemoteMethodByName('prototype.__delete__replying')
-  Model.disableRemoteMethodByName('prototype.__destroyById__replying')
-  Model.disableRemoteMethodByName('prototype.__updateById__replying')
+  Model.disableRemoteMethodByName('prototype.__create__' + options.asTo)
+  Model.disableRemoteMethodByName('prototype.__delete__' + options.asTo)
+  Model.disableRemoteMethodByName('prototype.__destroyById__' + options.asTo)
+  Model.disableRemoteMethodByName('prototype.__updateById__' + options.asTo)
 }

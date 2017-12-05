@@ -2,10 +2,18 @@
 const debug = require('debug')('mixins:follow-system')
 const IncludeThrough = require('loopback-include-through-mixin')
 
+const defaultOptions = {
+  model: 'Follow',
+  as: 'followers',
+  asTo: 'following'
+}
+
 module.exports = function(Model, options) {
+  options = Object.assign({}, defaultOptions, options)
+
   Model.on('attached', () => {
-    if (typeof Model.app.models.Follow === 'undefined') {
-      Model.app.loopback.getModel('Follow').on('attached', () => {
+    if (typeof Model.app.models[options.model] === 'undefined') {
+      Model.app.loopback.getModel(options.model).on('attached', () => {
         init(Model, options)
       })
     } else {
@@ -16,44 +24,44 @@ module.exports = function(Model, options) {
 
 function init(Model, options) {
   Model.hasMany(Model, {
-    as: 'followers',
+    as: options.as,
     foreignKey: 'followeeId',
-    keyThrough: 'userId',
-    through: Model.app.models.Follow
+    keyThrough: 'followerId',
+    through: Model.app.models[options.model]
   })
   Model.hasMany(Model, {
-    as: 'following',
-    foreignKey: 'userId',
+    as: options.asTo,
+    foreignKey: 'followerId',
     keyThrough: 'followeeId',
-    through: Model.app.models.Follow
+    through: Model.app.models[options.model]
   })
 
-  Model.app.models.Follow.belongsTo(Model, { as: 'user', foreignKey: 'userId' })
-  Model.app.models.Follow.belongsTo(Model, { as: 'followee', foreignKey: 'followeeId' })
+  Model.app.models[options.model].belongsTo(Model, { as: 'follower', foreignKey: 'followerId' })
+  Model.app.models[options.model].belongsTo(Model, { as: 'followee', foreignKey: 'followeeId' })
 
-  Model.disableRemoteMethodByName('prototype.__create__followers')
-  Model.disableRemoteMethodByName('prototype.__delete__followers')
-  Model.disableRemoteMethodByName('prototype.__destroyById__followers')
-  Model.disableRemoteMethodByName('prototype.__updateById__followers')
+  Model.disableRemoteMethodByName('prototype.__create__' + options.as)
+  Model.disableRemoteMethodByName('prototype.__delete__' + options.as)
+  Model.disableRemoteMethodByName('prototype.__destroyById__' + options.as)
+  Model.disableRemoteMethodByName('prototype.__updateById__' + options.as)
 
-  Model.disableRemoteMethodByName('prototype.__create__following')
-  Model.disableRemoteMethodByName('prototype.__delete__following')
-  Model.disableRemoteMethodByName('prototype.__destroyById__following')
-  Model.disableRemoteMethodByName('prototype.__updateById__following')
+  Model.disableRemoteMethodByName('prototype.__create__' + options.asTo)
+  Model.disableRemoteMethodByName('prototype.__delete__' + options.asTo)
+  Model.disableRemoteMethodByName('prototype.__destroyById__' + options.asTo)
+  Model.disableRemoteMethodByName('prototype.__updateById__' + options.asTo)
 
   Model.settings.acls.push({
     accessType: '*',
     principalType: 'ROLE',
     principalId: '$everyone',
     permission: 'ALLOW',
-    property: ['__count__followers', '__get__followers', '__findById__followers']
+    property: ['__count__' + options.as, '__get__' + options.as, '__findById__' + options.as]
   })
   Model.settings.acls.push({
     accessType: '*',
     principalType: 'ROLE',
     principalId: '$authenticated',
     permission: 'ALLOW',
-    property: ['__create__followers', '__updateById__followers']
+    property: ['__create__' + options.as, '__updateById__' + options.as]
   })
 
   Model.settings.acls.push({
@@ -61,21 +69,21 @@ function init(Model, options) {
     principalType: 'ROLE',
     principalId: '$everyone',
     permission: 'ALLOW',
-    property: ['__count__following', '__get__following', '__findById__following']
+    property: ['__count__' + options.asTo, '__get__' + options.asTo, '__findById__' + options.asTo]
   })
   Model.settings.acls.push({
     accessType: '*',
     principalType: 'ROLE',
     principalId: '$authenticated',
     permission: 'ALLOW',
-    property: ['__create__following', '__updateById__following']
+    property: ['__create__' + options.asTo, '__updateById__' + options.asTo]
   })
 
   IncludeThrough(Model, {
-    relations: ['followers', 'following'],
+    relations: [options.as, options.asTo],
     fields: {
-      followers: 'type',
-      following: 'type'
+      [options.as]: 'type',
+      [options.asTo]: 'type'
     }
   })
 

@@ -76,9 +76,7 @@ module.exports = function(Model, opt) {
           ? newdata[options.slug].length
           : newdata[options.slug].lastIndexOf(options.separator)
 
-      if (
-        !isNumber(parseInt(newdata[options.slug].substr(iof + 1, newdata[options.slug].length)))
-      ) {
+      if (!isNumber(parseInt(newdata[options.slug].substr(iof + 1, newdata[options.slug].length)))) {
         iof = newdata[options.slug].length
       }
 

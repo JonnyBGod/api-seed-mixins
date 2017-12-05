@@ -33,17 +33,9 @@ module.exports = function(Model, options) {
         Bucket: opts.Bucket || options.Bucket || app.get('s3Bucket'),
         Key: key,
         ContentType: opts.fileType,
-        CacheControl:
-          opts.CacheControl ||
-          options.CacheControl ||
-          app.get('s3CacheControl') ||
-          'max-age=86400, public',
+        CacheControl: opts.CacheControl || options.CacheControl || app.get('s3CacheControl') || 'max-age=86400, public',
         ACL: opts.ACL || options.ACL || app.get('s3ACL') || 'public-read',
-        StorageClass:
-          opts.StorageClass ||
-          options.StorageClass ||
-          app.get('s3StorageClass') ||
-          'REDUCED_REDUNDANCY'
+        StorageClass: opts.StorageClass || options.StorageClass || app.get('s3StorageClass') || 'REDUCED_REDUNDANCY'
       }
 
       s3.getSignedUrl('putObject', params, cb)

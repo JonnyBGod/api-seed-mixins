@@ -32,11 +32,7 @@ function init(Model, options) {
   })
 
   TwoFactorAuthentication.observe('before save', (ctx, next) => {
-    if (
-      ctx.Model.sharedClass.name === 'TwoFactorAuthentication' &&
-      ctx.isNewInstance &&
-      ctx.instance
-    ) {
+    if (ctx.Model.sharedClass.name === 'TwoFactorAuthentication' && ctx.isNewInstance && ctx.instance) {
       ctx.instance.secret = speakeasy.generateSecret()
       QRCode.toDataURL(ctx.instance.secret.otpauth_url, (err, data_url) => {
         if (err) return next(err)
