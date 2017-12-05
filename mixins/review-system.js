@@ -1,22 +1,51 @@
 'use strict'
 var debug = require('debug')('mixins:review-system')
 
+/**
+ * "ReviewSystem": true
+ * or
+ * "ReviewSystem": {
+ *   "reviewModel": {"model": "Review","as": "reviews",
+ *     "relation": "hasMany"
+ *   },
+ *   "reviewerModel": {
+ *     "model": "user",
+ *     "as": "reviews",
+ *     "relation": "hasMany"
+ *   }
+ * }
+ */
+const defaultOptions = {
+  reviewModel: {
+    model: 'Review',
+    as: 'reviews',
+    relation: 'hasMany'
+  },
+  reviewerModel: {
+    model: 'user',
+    as: 'reviews',
+    relation: 'hasMany'
+  }
+}
+
 module.exports = function(Model, options) {
+  options = Object.assign({}, defaultOptions, options)
+
   Model.on('attached', () => {
     if (
-      typeof Model.app.models.Review === 'undefined' ||
-      typeof Model.app.models.user === 'undefined'
+      typeof Model.app.models[options.reviewModel.model] === 'undefined' ||
+      typeof Model.app.models[options.reviewerModel.model] === 'undefined'
     ) {
-      if (typeof Model.app.models.Review === 'undefined') {
-        Model.app.loopback.getModel('Review').on('attached', () => {
-          if (typeof Model.app.models.user !== 'undefined') {
+      if (typeof Model.app.models[options.reviewModel.model] === 'undefined') {
+        Model.app.loopback.getModel(options.reviewModel.model).on('attached', () => {
+          if (typeof Model.app.models[options.reviewerModel.model] !== 'undefined') {
             init(Model, options)
           }
         })
       }
-      if (typeof Model.app.models.user === 'undefined') {
-        Model.app.loopback.getModel('user').on('attached', () => {
-          if (typeof Model.app.models.Review !== 'undefined') {
+      if (typeof Model.app.models[options.reviewerModel.model] === 'undefined') {
+        Model.app.loopback.getModel(options.reviewerModel.model).on('attached', () => {
+          if (typeof Model.app.models[options.reviewModel.model] !== 'undefined') {
             init(Model, options)
           }
         })
@@ -28,15 +57,20 @@ module.exports = function(Model, options) {
 }
 
 function init(Model, options) {
-  if (typeof Model.app.models.user.scopes.reviews === 'undefined') {
-    Model.app.models.user.hasMany(Model.app.models.Review, {
-      as: 'reviews',
-      foreignKey: 'userId'
-    })
+  if (typeof Model.app.models[options.reviewerModel.model].scopes.reviews === 'undefined') {
+    Model.app.models[options.reviewerModel.model][options.reviewModel.relation](
+      Model.app.models[options.reviewModel.model],
+      {
+        as: options.reviewModel.as
+      }
+    )
+    Model.app.models[options.reviewModel.model].belongsTo(
+      Model.app.models[options.reviewerModel.model]
+    )
   }
 
-  Model.hasMany(Model.app.models.Review, {
-    as: 'reviews'
+  Model[options.reviewerModel.relation](Model.app.models[options.reviewModel.model], {
+    as: options.reviewerModel.as
   })
-  Model.app.models.Review.belongsTo(Model)
+  Model.app.models[options.reviewModel.model].belongsTo(Model)
 }

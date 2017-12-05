@@ -78,4 +78,10 @@ function init(Model, options) {
       following: 'type'
     }
   })
+
+  // TODO:
+  // - Remote Method getMutualFriends
+  // - Remote Method countMutualFriends
+  // - Remote Method getFriendsDeep
+  // - Remote Method countFriendsDeep
 }
