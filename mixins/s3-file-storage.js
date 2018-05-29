@@ -78,7 +78,7 @@ module.exports = function(Model, options) {
           if (err) return next(err)
 
           var params = {
-            Bucket: opts.Bucket || options.Bucket || app.get('s3Bucket'),
+            Bucket: options.Bucket || app.get('s3Bucket'),
             Key: s3File.key
           }
           s3.deleteObject(params, next)

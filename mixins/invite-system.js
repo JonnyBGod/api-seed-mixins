@@ -82,7 +82,26 @@ function init(Model, options) {
 
           if (invite) {
             ctx.instance.active = true
-            invite.updateAttribute('used', true, () => {})
+            invite.updateAttributes({ invitedUserId: ctx.instance.id, used: true })
+
+            if (!invite.admin && Model.app.models.Referral) {
+              Model.app.models.Referral.count(
+                {
+                  referrerUserId: invite.userId,
+                  referredUserId: ctx.instance.id
+                },
+                (err, count) => {
+                  if (err) return console.error(err)
+
+                  if (count === 0) {
+                    Model.app.models.Referral.create({
+                      referrerUserId: invite.userId,
+                      referredUserId: ctx.instance.id
+                    })
+                  }
+                }
+              )
+            }
           }
 
           next()
@@ -103,7 +122,7 @@ function init(Model, options) {
           {
             where: {
               invitedUserId: uid,
-              user: true
+              used: true
             }
           },
           (err, invite) => {
@@ -124,20 +143,28 @@ function init(Model, options) {
                   err.code = 'INVALID_TOKEN'
                   fn(err)
                 } else {
-                  invite.used = true
-                  invite.invitedUserId = user.id
-                  invite.save(err => {
-                    if (err) {
-                      fn(err)
-                    } else {
-                      user.active = true
-                      user.save(err => {
-                        if (err) {
-                          fn(err)
-                        } else {
-                          fn()
+                  invite.updateAttributes({ invitedUserId: user.id, used: true }, err => {
+                    if (err) return fn(err)
+
+                    user.updateAttributes({ active: true }, fn)
+
+                    if (!invite.admin && Model.app.models.Referral) {
+                      Model.app.models.Referral.count(
+                        {
+                          referrerUserId: invite.userId,
+                          referredUserId: user.id
+                        },
+                        (err, count) => {
+                          if (err) return console.error(err)
+
+                          if (count === 0) {
+                            Model.app.models.Referral.create({
+                              referrerUserId: invite.userId,
+                              referredUserId: user.id
+                            })
+                          }
                         }
-                      })
+                      )
                     }
                   })
                 }
